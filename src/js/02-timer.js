@@ -13,7 +13,7 @@ const secondsEl = timerItems[3];
 buttonStart.disabled = true;
 buttonStart.addEventListener('click', goTimer);
 
-
+ let id = null;
 
 const fp = flatpickr("#datetime-picker", {
     enableTime: true,
@@ -21,8 +21,8 @@ const fp = flatpickr("#datetime-picker", {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    if (selectedDates < Date.now()) {
-        alert ('Please choose a date in the future')
+    if (selectedDates[0] < Date.now()) {
+        Notiflix.Notify.failure('Please choose a date in the future')
       }
     else {
         buttonStart.disabled = false;
@@ -31,21 +31,31 @@ const fp = flatpickr("#datetime-picker", {
 });
   
 function goTimer() {
-    let id = null;
+   
     
     id = setInterval(() => {
-        const currentTime = Date.now();
-    const finalTime = fp.selectedDates[0].getTime();
-    const deltaTime = finalTime - currentTime;
+      const currentTime = Date.now();
+      const finalTime = fp.selectedDates[0].getTime();
+      const deltaTime = finalTime - currentTime;
+      
     const { days, hours, minutes, seconds } = convertMs(deltaTime);
         daysEl.textContent = addLeadingZero(days);
         hoursEl.textContent = addLeadingZero(hours);
         minutesEl.textContent = addLeadingZero(minutes);
-        secondsEl.textContent = addLeadingZero(seconds);
+      secondsEl.textContent = addLeadingZero(seconds);
+      if (days === 0 && hours === 0 && minutes === 0 && seconds < 1) {
+        Notiflix.Notify.success('the timer is complete');
+        stopTimer();
+        
+      }
    }, 1000);
 }
 
-
+function stopTimer() {
+  clearInterval(id);
+  buttonStart.disabled = true;
+  
+}
 
 
 function convertMs(ms) {
